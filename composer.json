@@ -1,0 +1,33 @@
+{
+  "name": "bottleneck/bottleneck-client",
+  "version": "0.1.0",
+  "description": "Profiler client for the Bottleneck service",
+  "autoload": {
+    "psr-4": {
+      "Bottleneck\\": "src/"
+    },
+    "files": [
+      "helpers/bottleneck.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "orchestra/testbench": "^5.1"
+  },
+  "require": {
+    "illuminate/support": "^7.1",
+    "predis/predis": "^1.1",
+    "guzzlehttp/guzzle": "^6.5"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Bottleneck\\BottleneckClientServiceProvider"
+      ]
+    }
+  }
+}
