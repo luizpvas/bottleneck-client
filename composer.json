@@ -2,6 +2,7 @@
   "name": "bottleneck/bottleneck-client",
   "version": "0.1.0",
   "description": "Profiler client for the Bottleneck service",
+  "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "Bottleneck\\": "src/"
