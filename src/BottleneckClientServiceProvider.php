@@ -27,7 +27,7 @@ class BottleneckClientServiceProvider extends ServiceProvider
     function boot()
     {
         $this->publishes([
-            __DIR__ . '../config/bottleneck.php' => config_path('bottleneck.php'),
+            __DIR__ . '/../config/bottleneck.php' => config_path('bottleneck.php'),
         ]);
 
         if ($this->app->runningInConsole()) {
