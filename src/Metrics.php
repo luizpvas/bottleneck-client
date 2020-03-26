@@ -38,18 +38,11 @@ class Metrics
     public $responseStatusCode;
 
     /**
-     * List of database queries ran in this request/job.
+     * List of events, in order they happened.
      * 
      * @var array
      */
-    public $databaseQueries = [];
-
-    /**
-     * List of cache queries ran in this request/job.
-     * 
-     * @var array
-     */
-    public $cacheQueries = [];
+    public $events;
 
     /**
      * Additional context about the request, such as who is the current user,
@@ -59,12 +52,10 @@ class Metrics
      */
     public $context = [];
 
-    /**
-     * Exception of the request, only set if something bad happened.
-     * 
-     * @var \Throwable|null
-     */
-    public $exception;
+    function __construct()
+    {
+        $this->events = collect([]);
+    }
 
     /**
      * Adds a piece of context to the metrics.
@@ -82,33 +73,19 @@ class Metrics
         $this->context[$key] = $value;
     }
 
-    function addDatabaseQuery($sql, $duration)
-    {
-        $this->databaseQueries[] = [
-            'sql' => $sql,
-            'duration' => $duration,
-            'finished_at' => intval(microtime(true) * 1000 * 1000)
-        ];
-    }
-
-    function addCacheQuery($key, $hit)
-    {
-        $this->cacheQueries[] = [
-            'key' => $key,
-            'hit' => $hit,
-            'finished_at' => intval(microtime(true) * 1000 * 1000)
-        ];
-    }
-
     /**
-     * Something bad hapenned.
+     * Pushes the event in the events list.
      * 
-     * @param  \Throwable $exception
+     * @param  array $eventData
      * @return void
      */
-    function captureException($exception)
+    function addEvent($type, $eventData)
     {
-        $this->exception = $exception;
+        $this->events->push([
+            'type' => $type,
+            'data' => $eventData,
+            'recorded_at' => intval(microtime(true) * 1000 * 1000)
+        ]);
     }
 
     /**
@@ -121,7 +98,13 @@ class Metrics
     {
         $this->requestStart = intval(LARAVEL_START * 1000 * 1000);
         $this->requestEnd = intval(microtime(true) * 1000 * 1000);
-        $this->responseSizeInBytes = strlen($response->content());
+
+        if ($response instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
+            $this->responseSizeInBytes = strlen($response->content());
+        } else {
+            $this->responseSizeInBytes = null;
+        }
+
         $this->responseStatusCode = $response->status();
 
         if ($this->hasException()) {
@@ -157,11 +140,17 @@ class Metrics
         Redis::rpush(config('bottleneck.redis_key', 'bottleneck-cached-metrics'), json_encode($this->toArray()));
     }
 
+    /**
+     * At least one exception in the events list.
+     * 
+     * @return boolean
+     */
     function hasException()
     {
-        return !is_null($this->exception);
+        return $this->events->contains(function ($event) {
+            return $event['type'] == 'exception';
+        });
     }
-
 
     function toArray()
     {
@@ -171,9 +160,7 @@ class Metrics
             'request_end'             => $this->requestEnd,
             'response_size_in_bytes'  => $this->responseSizeInBytes,
             'response_status_code'    => $this->responseStatusCode,
-            'database_queries'        => $this->databaseQueries,
-            'cache_queries'           => $this->cacheQueries,
-            'exception'               => $this->exception
+            'events'                  => $this->events,
         ];
     }
 }

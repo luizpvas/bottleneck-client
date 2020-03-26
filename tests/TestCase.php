@@ -63,19 +63,4 @@ class TestCase extends OrchestraTestCase
         $app['router']->resource('posts', PostsController::class)->middleware([\Bottleneck\Middleware::class]);
         $app['router']->resource('errors', ErrorController::class)->middleware([\Bottleneck\Middleware::class]);
     }
-
-    /**
-     * Resolve application HTTP exception handler.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return void
-     */
-    protected function resolveApplicationExceptionHandler($app)
-    {
-        $app->singleton(
-            'Illuminate\Contracts\Debug\ExceptionHandler',
-            \Tests\Support\ExceptionHandler::class
-        );
-    }
 }

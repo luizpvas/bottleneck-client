@@ -55,6 +55,7 @@ class UploadMetrics extends Command
 
         $endpoint = config('bottleneck.endpoint', 'https://bottleneck-metrics.com');
         Http::post($endpoint . '/api/server_stats', [
+            'private_key'           => config('bottleneck.private_key'),
             'recored_at'            => intval(microtime(true) * 1000 * 1000),
             'disk_usage_percentage' => $stats->getDiskUsagePercentage(),
             'memory_usage_mb'       => $stats->getMemoryUsageMb(),
@@ -79,6 +80,7 @@ class UploadMetrics extends Command
 
         $endpoint = config('bottleneck.endpoint', 'https://bottleneck-metrics.com');
         Http::post($endpoint . '/api/metrics', [
+            'private_key' => config('bottleneck.private_key'),
             'metrics' => $compressedMetricsList
         ]);
     }

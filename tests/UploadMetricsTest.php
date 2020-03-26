@@ -26,6 +26,7 @@ class UploadMetricsTest extends TestCase
 
         Http::assertSent(function ($request) {
             if ($request->url() == 'https://bottleneck-metrics.com/api/metrics') {
+                // file_put_contents('compressed-metrics.txt', $request['metrics']);
                 $records = explode(PHP_EOL, gzdecode(base64_decode($request['metrics'])));
                 return count($records) == 3;
             }

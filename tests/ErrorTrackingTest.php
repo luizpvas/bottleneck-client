@@ -18,7 +18,12 @@ class ErrorTrackingTest extends TestCase
         $this->get('/errors')->assertStatus(500);
 
         $metrics = app('Bottleneck\Metrics');
-        $this->assertNotNull($metrics->exception);
+
+        $exceptions = $metrics->events->filter(function ($event) {
+            return $event['type'] == 'exception';
+        });
+
+        $this->assertEquals(1, count($exceptions));
         $this->assertEquals(500, $metrics->responseStatusCode);
     }
 

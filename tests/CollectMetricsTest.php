@@ -25,14 +25,24 @@ class CollectMetricsTest extends TestCase
     function tracks_database_queries()
     {
         $metrics = app('Bottleneck\Metrics');
-        $this->assertGreaterThan(3, count($metrics->databaseQueries));
+
+        $queries = $metrics->events->filter(function ($event) {
+            return $event['type'] == 'query';
+        });
+
+        $this->assertGreaterThan(3, count($queries));
     }
 
     /** @test */
     function tracks_cache_queries()
     {
         $metrics = app('Bottleneck\Metrics');
-        $this->assertEquals(2, count($metrics->cacheQueries));
+
+        $caches = $metrics->events->filter(function ($event) {
+            return $event['type'] == 'cache';
+        });
+
+        $this->assertEquals(2, count($caches));
     }
 
     /** @test */
